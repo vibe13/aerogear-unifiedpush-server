@@ -74,17 +74,6 @@ public class InstallationDaoImpl extends AbstractGenericDao<InstallationImpl, St
     }
 
     @Override
-    public List<String> findAllPushEndpointURLsForVariantIDByCriteria(String variantID, List<String> categories, List<String> aliases, List<String> deviceTypes) {
-
-        // the required part: Join + simplePushEndpoint URLs for given SimplePush variantID;
-        final StringBuilder jpqlString = new StringBuilder("select installation.simplePushEndpoint from ");
-        jpqlString.append(AbstractVariant.class.getSimpleName())
-                .append(" abstractVariant join abstractVariant.installations installation where abstractVariant.variantID = :variantID AND installation.enabled = true");
-
-        return this.executeDynamicQuery(jpqlString, variantID, categories, aliases, deviceTypes);
-    }
-
-    @Override
     public List<String> findAllDeviceTokenForVariantIDByCriteria(String variantID, List<String> categories, List<String> aliases, List<String> deviceTypes) {
 
         // the required part: Join + all tokens for variantID;

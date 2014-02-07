@@ -45,8 +45,6 @@ public class InstallationImpl extends PersistentObject implements Installation {
     private Set<String> categories;
     @Column
     private String platform;
-    @Column
-    private String simplePushEndpoint;
 
     @Override
     public boolean isEnabled() {
@@ -128,13 +126,4 @@ public class InstallationImpl extends PersistentObject implements Installation {
         return platform;
     }
 
-    @Override
-    public void setSimplePushEndpoint(String simplePushEndpoint) {
-        this.simplePushEndpoint = simplePushEndpoint;
-    }
-
-    @Override
-    public String getSimplePushEndpoint() {
-        return simplePushEndpoint;
-    }
 }

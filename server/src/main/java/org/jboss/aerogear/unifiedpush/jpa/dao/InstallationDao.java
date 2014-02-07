@@ -45,10 +45,4 @@ public interface InstallationDao extends GenericDao<InstallationImpl, String> {
      */
     List<String> findAllDeviceTokenForVariantIDByCriteria(String variantID, List<String> categories, List<String> aliases, List<String> deviceTypes);
 
-    /**
-     * Sender API for SimplePush installations:
-     * 
-     * Query all pushEndpoint URLs for the given SimplePush variant, by respecting a few criteria arguments (categories, aliases and deviceTypes)
-     */
-    List<String> findAllPushEndpointURLsForVariantIDByCriteria(String variantID, List<String> categories, List<String> aliases, List<String> deviceTypes);
 }

@@ -366,10 +366,9 @@ var client = AeroGear.UnifiedPushClient(
 
 // assemble the metadata for the registration:
 var metadata = {
-    deviceToken: "theDeviceToken",
+    deviceToken: "https://some.server.com/something",
     alias: "some_username",
-    category: "email",
-    simplePushEndpoint: "https://some.server.com/something"
+    category: "email"
 };
 
 // perform the registration against the UnifiedPush server:

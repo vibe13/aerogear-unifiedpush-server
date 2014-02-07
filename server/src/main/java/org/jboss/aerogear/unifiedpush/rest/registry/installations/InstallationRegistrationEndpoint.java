@@ -39,6 +39,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.logging.Logger;
 
 @Stateless
@@ -83,9 +85,18 @@ public class InstallationRegistrationEndpoint {
                     request);
         }
 
-        // Poor validation: We require the Token! And the 'simplePushEndpoint' for SimplePush clients!
-        if (entity.getDeviceToken() == null || (variant.getType() == VariantType.SIMPLE_PUSH && entity.getSimplePushEndpoint() == null)) {
+        // For SimplePush clients make sure we have a deviceToken and that it contains a valid URL
+        if (variant.getType() == VariantType.SIMPLE_PUSH ) {
+            if(entity.getDeviceToken() == null) {
             return appendAllowOriginHeader(Response.status(Status.BAD_REQUEST), request);
+            }
+            else {
+                try {
+                    URL url  = new URL(entity.getDeviceToken());
+                } catch (MalformedURLException e) {
+                    return appendAllowOriginHeader(Response.status(Status.BAD_REQUEST), request);
+                }
+            }
         }
 
         // look up all installations (with same token) for the given variant:

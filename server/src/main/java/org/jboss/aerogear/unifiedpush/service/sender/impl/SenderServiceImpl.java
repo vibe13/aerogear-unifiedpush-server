@@ -157,7 +157,7 @@ public class SenderServiceImpl implements SenderService {
         }
 
         for (SimplePushVariant simplePushVariant : simplePushVariants) {
-            final List<String> pushEndpointURLsPerCategory = clientInstallationService.findAllSimplePushEndpointURLsForVariantIDByCriteria(simplePushVariant
+            final List<String> pushEndpointURLsPerCategory = clientInstallationService.findAllDeviceTokenForVariantIDByCriteria(simplePushVariant
                     .getVariantID(), categories, aliases, deviceTypes);
             this.sentToSimplePush(pushEndpointURLsPerCategory, simplePushVersionPayload);
         }

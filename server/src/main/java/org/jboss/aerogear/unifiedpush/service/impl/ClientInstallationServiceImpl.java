@@ -66,7 +66,6 @@ public class ClientInstallationServiceImpl implements ClientInstallationService 
         installationToUpdate.setOperatingSystem(postedInstallation
                 .getOperatingSystem());
         installationToUpdate.setOsVersion(postedInstallation.getOsVersion());
-        installationToUpdate.setSimplePushEndpoint(postedInstallation.getSimplePushEndpoint());
         installationToUpdate.setEnabled(postedInstallation.isEnabled());
         installationToUpdate.setPlatform(postedInstallation.getPlatform());
 
@@ -110,11 +109,4 @@ public class ClientInstallationServiceImpl implements ClientInstallationService 
         return dao.findAllDeviceTokenForVariantIDByCriteria(variantID, categories, aliases, deviceTypes);
     }
 
-    /**
-     * Finder for 'send', used for SimplePush clients
-     */
-    @Override
-    public List<String> findAllSimplePushEndpointURLsForVariantIDByCriteria(String variantID, List<String> categories, List<String> aliases, List<String> deviceTypes) {
-        return dao.findAllPushEndpointURLsForVariantIDByCriteria(variantID, categories, aliases, deviceTypes);
-    }
 }
