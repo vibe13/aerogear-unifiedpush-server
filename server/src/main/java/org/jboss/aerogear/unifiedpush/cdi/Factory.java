@@ -33,8 +33,4 @@ public final class Factory {
     @PersistenceContext(unitName = "picketlink-default")
     private EntityManager picketLinkEntityManager;
 
-    @Produces
-    @PersistenceContext(unitName = "unifiedpush-default", type = PersistenceContextType.EXTENDED)
-    private EntityManager entityManager;
-
 }
