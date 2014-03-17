@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 
 import org.jboss.aerogear.unifiedpush.api.AndroidVariant;
 import org.jboss.aerogear.unifiedpush.api.ChromePackagedAppVariant;
@@ -38,6 +37,8 @@ import org.jboss.aerogear.unifiedpush.message.sender.GCMPushNotificationSender;
 import org.jboss.aerogear.unifiedpush.message.sender.SimplePushNotificationSender;
 import org.jboss.aerogear.unifiedpush.service.ClientInstallationService;
 import org.jboss.aerogear.unifiedpush.service.GenericVariantService;
+import org.jboss.aerogear.unifiedpush.service.impl.ClientInstallationServiceImpl;
+import org.jboss.aerogear.unifiedpush.service.impl.GenericVariantServiceImpl;
 
 @Stateless
 @Asynchronous
@@ -46,15 +47,10 @@ public class SenderServiceImpl implements SenderService {
     private final Logger logger = Logger.getLogger(SenderServiceImpl.class.getName());
     private final SimplePushNotificationSender simplePushSender = new SimplePushNotificationSender();
     private final GCMForChromePushNotificationSender gcmForChromePushNotificationSender = new GCMForChromePushNotificationSender();
-
-    @Inject
-    private GCMPushNotificationSender gcmSender;
-    @Inject
-    private APNsPushNotificationSender apnsSender;
-    @Inject
-    private ClientInstallationService clientInstallationService;
-    @Inject
-    private GenericVariantService genericVariantService;
+    private final GCMPushNotificationSender gcmSender = new GCMPushNotificationSender();
+    private final APNsPushNotificationSender apnsSender = new APNsPushNotificationSender();
+    private final ClientInstallationService clientInstallationService = new ClientInstallationServiceImpl();
+    private final GenericVariantService genericVariantService = new GenericVariantServiceImpl();
 
     @Override
     @Asynchronous

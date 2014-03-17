@@ -24,8 +24,8 @@ import com.notnoop.apns.PayloadBuilder;
 import org.jboss.aerogear.unifiedpush.api.iOSVariant;
 import org.jboss.aerogear.unifiedpush.service.ClientInstallationService;
 import org.jboss.aerogear.unifiedpush.message.UnifiedPushMessage;
+import org.jboss.aerogear.unifiedpush.service.impl.ClientInstallationServiceImpl;
 
-import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -39,8 +39,7 @@ public class APNsPushNotificationSender {
 
     private final Logger logger = Logger.getLogger(APNsPushNotificationSender.class.getName());
 
-    @Inject
-    private ClientInstallationService clientInstallationService;
+    private final ClientInstallationService clientInstallationService = new ClientInstallationServiceImpl();
 
     /**
      * Sends APNs notifications ({@link UnifiedPushMessage}) to all devices, that are represented by 

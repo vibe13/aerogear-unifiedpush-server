@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
 import org.jboss.aerogear.unifiedpush.api.AndroidVariant;
 import org.jboss.aerogear.unifiedpush.message.cache.GCMCache;
 import org.jboss.aerogear.unifiedpush.service.ClientInstallationService;
@@ -35,13 +33,13 @@ import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
 import com.google.android.gcm.server.Message.Builder;
 import org.jboss.aerogear.unifiedpush.message.UnifiedPushMessage;
+import org.jboss.aerogear.unifiedpush.service.impl.ClientInstallationServiceImpl;
 
 public class GCMPushNotificationSender {
 
     private final GCMCache cache = new GCMCache();
 
-    @Inject
-    private ClientInstallationService clientInstallationService;
+    private final ClientInstallationService clientInstallationService = new ClientInstallationServiceImpl();
 
     private final Logger logger = Logger.getLogger(GCMPushNotificationSender.class.getName());
 

@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.core.Response.Status;
-
 public class SimplePushNotificationSender implements Serializable {
     private static final long serialVersionUID = 5747687132270998712L;
 
@@ -56,7 +54,7 @@ public class SimplePushNotificationSender implements Serializable {
                 int simplePushStatusCode = conn.getResponseCode();
                 logger.info("SimplePush Status: " + simplePushStatusCode);
 
-                if (Status.OK.getStatusCode() != simplePushStatusCode) {
+                if (200 != simplePushStatusCode) {
                     logger.severe("ERROR ??????     STATUS CODE, from PUSH NETWORK was NOT 200, but....: " + simplePushStatusCode);
                 }
             } catch (IOException e) {
