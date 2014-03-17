@@ -18,7 +18,6 @@ package org.jboss.aerogear.unifiedpush.jpa.interceptor;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
