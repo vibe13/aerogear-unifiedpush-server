@@ -24,14 +24,10 @@ import org.jboss.aerogear.unifiedpush.api.VariantType;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAInstallationDao;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAPushApplicationDao;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAVariantDao;
-import org.junit.After;
+import org.jboss.aerogear.unifiedpush.jpa.interceptor.JpaException;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.RollbackException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Arrays;
@@ -45,35 +41,18 @@ import static org.junit.Assert.fail;
 
 public class InstallationDaoTest {
 
-    private EntityManager entityManager;
-    private JPAInstallationDao installationDao;
+    private final JPAInstallationDao installationDao = new JPAInstallationDao();
     private String androidVariantID;
     private String simplePushVariantID;
 
+
     @Before
-    public void setUp() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("UnifiedPush");
-        entityManager = emf.createEntityManager();
-
-        // start the shindig
-        entityManager.getTransaction().begin();
-
-        this.createTestData(entityManager);
-    }
-
-    private void createTestData(EntityManager entityManager) {
+    public void createTestData() {
 
         // create abd configure all the DAOs:
         JPAPushApplicationDao pushApplicationDao = new JPAPushApplicationDao();
-
         // generic variant DAO:
         JPAVariantDao variantDao = new JPAVariantDao();
-
-        pushApplicationDao.setEntityManager(entityManager);
-        variantDao.setEntityManager(entityManager);
-
-        this.installationDao = new JPAInstallationDao();
-        this.installationDao.setEntityManager(entityManager);
 
         // create the PushApplication and a few variants:
         PushApplication pa = new PushApplication();
@@ -164,17 +143,6 @@ public class InstallationDaoTest {
         sp.getInstallations().add(simplePush2);
         sp.getInstallations().add(simplePush3);
         variantDao.update(sp);
-    }
-
-    @After
-    public void tearDown() {
-        try {
-            entityManager.getTransaction().commit();
-        } catch (RollbackException e) {
-            //ignore
-        }
-
-        entityManager.close();
     }
 
     @Test
@@ -374,11 +342,13 @@ public class InstallationDaoTest {
         installation.setVariantType(VariantType.IOS);
 
         // when
-        installationDao.create(installation);
         try {
-            entityManager.flush();
+            installationDao.create(installation);
             fail("ConstraintViolationException should have been thrown");
-        } catch (ConstraintViolationException violationException) {
+        }
+        catch(JpaException persistenceException) {
+            ConstraintViolationException violationException = (ConstraintViolationException) persistenceException.getCause();
+
             // then
             final Set<ConstraintViolation<?>> constraintViolations = violationException.getConstraintViolations();
             assertThat(constraintViolations).isNotEmpty();
@@ -399,7 +369,6 @@ public class InstallationDaoTest {
 
         // when
         installationDao.create(installation);
-        entityManager.flush();
     }
 
     @Test
@@ -414,7 +383,6 @@ public class InstallationDaoTest {
 
         // when
         installationDao.create(installation);
-        entityManager.flush();
     }
 
     @Test
@@ -430,10 +398,6 @@ public class InstallationDaoTest {
 
         installationDao.create(android1);
 
-        // flush to be sure that it's in the database
-        entityManager.flush();
-        // clear the cache otherwise finding the entity will not perform a select but get the entity from cache
-        entityManager.clear();
 
         Installation installation = installationDao.find(id);
 
@@ -443,8 +407,6 @@ public class InstallationDaoTest {
         final String alias = "foobar@bar.org";
         android1.setAlias(alias);
         installationDao.update(android1);
-        entityManager.flush();
-        entityManager.clear();
 
         installation = installationDao.find(id);
 

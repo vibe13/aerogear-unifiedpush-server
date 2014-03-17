@@ -16,12 +16,13 @@
  */
 package org.jboss.aerogear.unifiedpush.jpa.dao.impl;
 
-import org.jboss.aerogear.unifiedpush.api.AbstractVariant;
 import org.jboss.aerogear.unifiedpush.api.Variant;
 import org.jboss.aerogear.unifiedpush.dao.VariantDao;
+import org.jboss.aerogear.unifiedpush.jpa.interceptor.JpaOperation;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.helper.JPATransformHelper;
 import org.jboss.aerogear.unifiedpush.model.jpa.AbstractVariantEntity;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.List;
 
@@ -29,49 +30,83 @@ public class JPAVariantDao extends JPABaseDao implements VariantDao {
 
 
     @Override
-    public void create(Variant variant) {
+    public void create(final Variant variant) {
         AbstractVariantEntity entity = JPATransformHelper.toEntity(variant);
 
         persist(entity);
     }
 
     @Override
-    public void update(Variant variant) {
+    public void update(final Variant variant) {
         AbstractVariantEntity entity = JPATransformHelper.toEntity(variant);
 
         merge(entity);
     }
 
     @Override
-    public void delete(Variant variant) {
-        AbstractVariantEntity entity = entityManager.find(AbstractVariantEntity.class, variant.getId());
-        remove(entity);
+    public void delete(final Variant variant) {
+        final JpaOperation<Void> deleteVariantOperation = new JpaOperation<Void>() {
+            @Override
+            public Void perform(final EntityManager entityManager) {
+                AbstractVariantEntity entity = entityManager.find(AbstractVariantEntity.class, variant.getId());
+
+                if (entity != null) {
+                    entityManager.remove(entity);
+                }
+
+                return null;
+            }
+        };
+
+        jpaExecutor.execute(deleteVariantOperation);
     }
 
 
     @Override
-    public Variant findByVariantID(String variantID) {
+    public Variant findByVariantID(final String variantID) {
+        final JpaOperation<Variant> queryOperation = new JpaOperation<Variant>() {
+            @Override
+            public Variant perform(final EntityManager entityManager) {
 
-        AbstractVariantEntity entity = getSingleResultForQuery(createQuery("select t from " + AbstractVariantEntity.class.getSimpleName() + " t where t.variantID = :variantID")
-                .setParameter("variantID", variantID));
+                AbstractVariantEntity entity = getSingleResultForQuery(entityManager.createQuery("select t from " + AbstractVariantEntity.class.getSimpleName() + " t where t.variantID = :variantID")
+                        .setParameter("variantID", variantID));
 
-        return JPATransformHelper.fromEntity(entity);
+                return JPATransformHelper.fromEntity(entity);
+            }
+        };
+
+        return jpaExecutor.execute(queryOperation);
     }
 
     @Override
-    public Variant findByVariantIDForDeveloper(String variantID, String loginName) {
+    public Variant findByVariantIDForDeveloper(final String variantID, final String loginName) {
+        final JpaOperation<Variant> queryOperation = new JpaOperation<Variant>() {
+            @Override
+            public Variant perform(final EntityManager entityManager) {
 
-        AbstractVariantEntity entity = getSingleResultForQuery(createQuery("select t from " + AbstractVariantEntity.class.getSimpleName() + " t where t.variantID = :variantID and t.developer = :developer")
-                .setParameter("variantID", variantID)
-                .setParameter("developer", loginName));
+                AbstractVariantEntity entity = getSingleResultForQuery(entityManager.createQuery("select t from " + AbstractVariantEntity.class.getSimpleName() + " t where t.variantID = :variantID and t.developer = :developer")
+                        .setParameter("variantID", variantID)
+                        .setParameter("developer", loginName));
 
+                return JPATransformHelper.fromEntity(entity);
+            }
+        };
 
-        return JPATransformHelper.fromEntity(entity);
+        return jpaExecutor.execute(queryOperation);
     }
 
     @Override
-    public Variant find(String id) {
-        AbstractVariantEntity entity = entityManager.find(AbstractVariantEntity.class, id);
+    public Variant find(final String id) {
+
+        final JpaOperation<AbstractVariantEntity> findVariantOperation = new JpaOperation<AbstractVariantEntity>() {
+            @Override
+            public AbstractVariantEntity perform(final EntityManager entityManager) {
+                AbstractVariantEntity entity = entityManager.find(AbstractVariantEntity.class, id);
+                return entity;
+            }
+        };
+
+        AbstractVariantEntity entity = jpaExecutor.execute(findVariantOperation);
         return JPATransformHelper.fromEntity(entity);
     }
 
@@ -84,6 +119,4 @@ public class JPAVariantDao extends JPABaseDao implements VariantDao {
             return null;
         }
     }
-
-
 }

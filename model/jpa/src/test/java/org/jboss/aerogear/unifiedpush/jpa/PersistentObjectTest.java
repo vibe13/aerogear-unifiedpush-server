@@ -18,44 +18,16 @@ package org.jboss.aerogear.unifiedpush.jpa;
 
 import org.jboss.aerogear.unifiedpush.api.AndroidVariant;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAVariantDao;
-import org.junit.After;
-import org.junit.Before;
+import org.jboss.aerogear.unifiedpush.jpa.interceptor.JpaException;
 import org.junit.Test;
 
-import javax.persistence.*;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PersistentObjectTest {
 
-    private EntityManager entityManager;
-    private JPAVariantDao variantDao;
-
-
-    @Before
-    public void setUp() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("UnifiedPush");
-        entityManager = emf.createEntityManager();
-
-        // start the shindig
-        entityManager.getTransaction().begin();
-
-        variantDao = new JPAVariantDao();
-        variantDao.setEntityManager(entityManager);
-    }
-
-    @After
-    public void tearDown() {
-        EntityTransaction transaction = entityManager.getTransaction();
-
-        if (transaction.getRollbackOnly()) {
-            transaction.rollback();
-        } else {
-            transaction.commit();
-        }
-        entityManager.close();
-    }
+    private final JPAVariantDao variantDao = new JPAVariantDao();
 
     @Test
     public void saveObject() {
@@ -66,6 +38,7 @@ public class PersistentObjectTest {
         variantDao.create(av);
     }
 
+    @Test(expected = JpaException.class)
     public void updateIdToNull() {
 
         final AndroidVariant av = new AndroidVariant();
@@ -82,7 +55,7 @@ public class PersistentObjectTest {
 
     }
 
-    @Test(expected = PersistenceException.class)
+    @Test(expected = JpaException.class)
     public void updateId() {
 
         final AndroidVariant av = new AndroidVariant();

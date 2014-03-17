@@ -18,12 +18,12 @@ package org.jboss.aerogear.unifiedpush.jpa.dao.impl;
 
 import org.jboss.aerogear.unifiedpush.api.Installation;
 import org.jboss.aerogear.unifiedpush.dao.InstallationDao;
+import org.jboss.aerogear.unifiedpush.jpa.interceptor.JpaOperation;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.helper.JPATransformHelper;
 import org.jboss.aerogear.unifiedpush.model.jpa.AbstractVariantEntity;
 import org.jboss.aerogear.unifiedpush.model.jpa.InstallationEntity;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -42,50 +42,94 @@ public class JPAInstallationDao extends JPABaseDao implements InstallationDao {
     @Override
     public void update(Installation installation) {
         InstallationEntity entity = JPATransformHelper.toEntity(installation);
-
         merge(entity);
     }
 
     @Override
-    public void delete(Installation installation) {
-        InstallationEntity entity = entityManager.find(InstallationEntity.class, installation.getId());
-        remove(entity);
+    public void delete(final Installation installation) {
+        final JpaOperation<Void> deleteVariantOperation = new JpaOperation<Void>() {
+            @Override
+            public Void perform(final EntityManager entityManager) {
+                InstallationEntity entity = entityManager.find(InstallationEntity.class, installation.getId());
+
+                if (entity != null) {
+                    entityManager.remove(entity);
+                }
+
+                return null;
+            }
+        };
+
+        jpaExecutor.execute(deleteVariantOperation);
     }
 
 
     @Override
-    public Installation findInstallationForVariantByDeviceToken(String variantID, String deviceToken) {
+    public Installation findInstallationForVariantByDeviceToken(final String variantID, final String deviceToken) {
 
-        InstallationEntity entity = getSingleResultForQuery(createQuery("select installation from " + AbstractVariantEntity.class.getSimpleName() +
-                " abstractVariant join abstractVariant.installations installation" +
-                " where abstractVariant.variantID = :variantID" +
-                " and installation.deviceToken = :deviceToken")
-                .setParameter("variantID", variantID)
-                .setParameter("deviceToken", deviceToken));
+        final JpaOperation<Installation> queryOperation = new JpaOperation<Installation>() {
+            @Override
+            public Installation perform(final EntityManager entityManager) {
 
+                InstallationEntity entity = getSingleResultForQuery(entityManager.createQuery("select installation from " + AbstractVariantEntity.class.getSimpleName() +
+                        " abstractVariant join abstractVariant.installations installation" +
+                        " where abstractVariant.variantID = :variantID" +
+                        " and installation.deviceToken = :deviceToken")
+                        .setParameter("variantID", variantID)
+                        .setParameter("deviceToken", deviceToken));
 
+                return JPATransformHelper.fromEntity(entity);
+            }
+        };
 
-        return JPATransformHelper.fromEntity(entity);
+        return jpaExecutor.execute(queryOperation);
     }
 
     @Override
-    public List<Installation> findInstallationsForVariantByDeviceTokens(String variantID, Set<String> deviceTokens) {
+    public List<Installation> findInstallationsForVariantByDeviceTokens(final String variantID, final Set<String> deviceTokens) {
         // if there are no device-tokens, no need to bug the database
         if (deviceTokens == null || deviceTokens.isEmpty()) {
             // be nice and return an empty list...
             return Collections.EMPTY_LIST;
         }
 
-        List<InstallationEntity> entities = createQuery("select installation from " + AbstractVariantEntity.class.getSimpleName() +
-                " abstractVariant join abstractVariant.installations installation" +
-                " where abstractVariant.variantID = :variantID" +
-                " and installation.deviceToken IN :deviceTokens")
-                .setParameter("variantID", variantID)
-                .setParameter("deviceTokens", deviceTokens)
-                .getResultList();
 
-        return JPATransformHelper.fromInstallationEntityCollection(entities);
+        final JpaOperation<List<Installation>> queryOperation = new JpaOperation<List<Installation>>() {
+            @Override
+            public List<Installation> perform(final EntityManager entityManager) {
+
+                List<InstallationEntity> entities = entityManager.createQuery("select installation from " + AbstractVariantEntity.class.getSimpleName() +
+                        " abstractVariant join abstractVariant.installations installation" +
+                        " where abstractVariant.variantID = :variantID" +
+                        " and installation.deviceToken IN :deviceTokens")
+                        .setParameter("variantID", variantID)
+                        .setParameter("deviceTokens", deviceTokens)
+                        .getResultList();
+
+                return JPATransformHelper.fromInstallationEntityCollection(entities);
+
+            }
+        };
+
+        return jpaExecutor.execute(queryOperation);
     }
+
+    @Override
+    public Installation find(final String id) {
+
+        final JpaOperation<InstallationEntity> findInstallationOperation = new JpaOperation<InstallationEntity>() {
+            @Override
+            public InstallationEntity perform(final EntityManager entityManager) {
+                InstallationEntity entity = entityManager.find(InstallationEntity.class, id);
+                return entity;
+            }
+        };
+
+        InstallationEntity entity = jpaExecutor.execute(findInstallationOperation);
+        return JPATransformHelper.fromEntity(entity);
+    }
+
+
 
     @Override
     public List<String> findAllDeviceTokenForVariantIDByCriteria(String variantID, List<String> categories, List<String> aliases, List<String> deviceTypes) {
@@ -109,13 +153,6 @@ public class JPAInstallationDao extends JPABaseDao implements InstallationDao {
         return this.executeDynamicQuery(jpqlString, variantID, categories, aliases, deviceTypes);
     }
 
-    @Override
-    public Installation find(String id) {
-        InstallationEntity entity = entityManager.find(InstallationEntity.class, id);
-
-        return JPATransformHelper.fromEntity(entity);
-    }
-
     /**
      *
      * A dynamic finder for all sorts of queries around selecting Device-Token, based on different criterias.
@@ -126,7 +163,7 @@ public class JPAInstallationDao extends JPABaseDao implements InstallationDao {
      * TODO: perhaps moving to Criteria API for this later
      */
     @SuppressWarnings("unchecked")
-    private List<String> executeDynamicQuery(final StringBuilder jpqlBaseString, String variantID, List<String> categories, List<String> aliases, List<String> deviceTypes) {
+    private List<String> executeDynamicQuery(final StringBuilder jpqlBaseString, final String variantID, final List<String> categories, final List<String> aliases, final List<String> deviceTypes) {
 
         // parameter names and values, stored in a map:
         final Map<String, Object> parameters = new LinkedHashMap<String, Object>();
@@ -170,19 +207,31 @@ public class JPAInstallationDao extends JPABaseDao implements InstallationDao {
             jpqlBaseString.append(')');
         }
 
-        // the entire JPQL string
-        Query jpql = createQuery(jpqlBaseString.toString());
-        // add REQUIRED param:
-        jpql.setParameter("variantID", variantID);
 
-        // add the optionals, as needed:
-        Set<String> paramKeys = parameters.keySet();
-        for (String parameterName : paramKeys) {
-            jpql.setParameter(parameterName, parameters.get(parameterName));
-        }
 
-        return jpql.getResultList();
+
+        final JpaOperation<List<String>> queryOperation = new JpaOperation<List<String>>() {
+            @Override
+            public List<String> perform(final EntityManager entityManager) {
+
+                // the entire JPQL string
+                Query jpql = entityManager.createQuery(jpqlBaseString.toString());
+                // add REQUIRED param:
+                jpql.setParameter("variantID", variantID);
+
+                // add the optionals, as needed:
+                Set<String> paramKeys = parameters.keySet();
+                for (String parameterName : paramKeys) {
+                    jpql.setParameter(parameterName, parameters.get(parameterName));
+                }
+
+                return jpql.getResultList();
+            }
+        };
+
+        return jpaExecutor.execute(queryOperation);
     }
+
     /**
      * Checks if the list is empty, and not null
      */

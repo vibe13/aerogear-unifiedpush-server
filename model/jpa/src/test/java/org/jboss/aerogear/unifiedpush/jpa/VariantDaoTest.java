@@ -33,32 +33,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class VariantDaoTest {
 
+    private final JPAVariantDao variantDao  = new JPAVariantDao();
+    private final JPAInstallationDao installationDao = new JPAInstallationDao();
 
-    private EntityManager entityManager;
-    private JPAVariantDao variantDao;
-    private JPAInstallationDao installationDao;
-
-
-    @Before
-    public void setUp() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("UnifiedPush");
-        entityManager = emf.createEntityManager();
-
-        // start the shindig
-        entityManager.getTransaction().begin();
-
-        variantDao = new JPAVariantDao();
-        variantDao.setEntityManager(entityManager);
-        installationDao = new JPAInstallationDao();
-        installationDao.setEntityManager(entityManager);
-    }
-
-    @After
-    public void tearDown() {
-        entityManager.getTransaction().commit();
-
-        entityManager.close();
-    }
 
     @Test
     public void findVariantByIdForDeveloper() {
@@ -181,10 +158,6 @@ public class VariantDaoTest {
 
         variantDao.create(av);
 
-        // flush to be sure that it's in the database
-        entityManager.flush();
-        // clear the cache otherwise finding the entity will not perform a select but get the entity from cache
-        entityManager.clear();
 
         AndroidVariant variant = (AndroidVariant) variantDao.find(id);
 
@@ -192,9 +165,6 @@ public class VariantDaoTest {
 
         av.setGoogleKey("NEW_KEY");
         variantDao.update(av);
-
-        entityManager.flush();
-        entityManager.clear();
 
         variant = (AndroidVariant) variantDao.find(id);
 
@@ -240,26 +210,14 @@ public class VariantDaoTest {
         AndroidVariant av = new AndroidVariant();
         av.setGoogleKey("KEY");
         av.setDeveloper("admin");
-        final String androidId  = av.getVariantID();
 
         variantDao.create(av);
-
-        // flush to be sure that it's in the database
-        entityManager.flush();
-        // clear the cache otherwise finding the entity will not perform a select but get the entity from cache
-        entityManager.clear();
 
 
         iOSVariant iOS = new iOSVariant();
         iOS.setCertificate("test".getBytes());
         iOS.setPassphrase("secret");
-        final String iOSid = iOS.getVariantID();
 
         variantDao.create(iOS);
-        // flush to be sure that it's in the database
-        entityManager.flush();
-        // clear the cache otherwise finding the entity will not perform a select but get the entity from cache
-        entityManager.clear();
-
     }
 }

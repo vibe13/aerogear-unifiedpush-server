@@ -18,9 +18,11 @@ package org.jboss.aerogear.unifiedpush.jpa.dao.impl;
 
 import org.jboss.aerogear.unifiedpush.api.PushApplication;
 import org.jboss.aerogear.unifiedpush.dao.PushApplicationDao;
+import org.jboss.aerogear.unifiedpush.jpa.interceptor.JpaOperation;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.helper.JPATransformHelper;
 import org.jboss.aerogear.unifiedpush.model.jpa.PushApplicationEntity;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.List;
 
@@ -41,44 +43,88 @@ public class JPAPushApplicationDao extends JPABaseDao implements PushApplication
     }
 
     @Override
-    public void delete(PushApplication pushApplication) {
-        PushApplicationEntity entity = entityManager.find(PushApplicationEntity.class, pushApplication.getId());
-        remove(entity);
+    public void delete(final PushApplication pushApplication) {
+        final JpaOperation<Void> deleteVariantOperation = new JpaOperation<Void>() {
+            @Override
+            public Void perform(final EntityManager entityManager) {
+                PushApplicationEntity entity = entityManager.find(PushApplicationEntity.class, pushApplication.getId());
+
+                if (entity != null) {
+                    entityManager.remove(entity);
+                }
+
+                return null;
+            }
+        };
+
+        jpaExecutor.execute(deleteVariantOperation);
     }
 
     @Override
-    public List<PushApplication> findAllForDeveloper(String loginName) {
+    public List<PushApplication> findAllForDeveloper(final String loginName) {
 
-        List<PushApplicationEntity> entities = createQuery("select pa from " + PushApplicationEntity.class.getSimpleName() + " pa where pa.developer = :developer")
-                .setParameter("developer", loginName).getResultList();
+        final JpaOperation<List<PushApplication>> queryOperation = new JpaOperation<List<PushApplication>>() {
+            @Override
+            public List<PushApplication> perform(final EntityManager entityManager) {
 
-        return JPATransformHelper.fromPushApplicationEntityCollection(entities);
+                List<PushApplicationEntity> entities = entityManager.createQuery("select pa from " + PushApplicationEntity.class.getSimpleName() + " pa where pa.developer = :developer")
+                        .setParameter("developer", loginName).getResultList();
+
+                return JPATransformHelper.fromPushApplicationEntityCollection(entities);
+            }
+        };
+
+        return jpaExecutor.execute(queryOperation);
     }
 
     @Override
-    public PushApplication findByPushApplicationIDForDeveloper(String pushApplicationID, String loginName) {
+    public PushApplication findByPushApplicationIDForDeveloper(final String pushApplicationID, final String loginName) {
 
-        PushApplicationEntity entity = getSingleResultForQuery(createQuery(
-                "select pa from " + PushApplicationEntity.class.getSimpleName() + " pa where pa.pushApplicationID = :pushApplicationID and pa.developer = :developer")
-                .setParameter("pushApplicationID", pushApplicationID)
-                .setParameter("developer", loginName));
+        final JpaOperation<PushApplication> queryOperation = new JpaOperation<PushApplication>() {
+            @Override
+            public PushApplication perform(final EntityManager entityManager) {
 
+                PushApplicationEntity entity = getSingleResultForQuery(entityManager.createQuery(
+                        "select pa from " + PushApplicationEntity.class.getSimpleName() + " pa where pa.pushApplicationID = :pushApplicationID and pa.developer = :developer")
+                        .setParameter("pushApplicationID", pushApplicationID)
+                        .setParameter("developer", loginName));
+
+                return JPATransformHelper.fromEntity(entity);
+            }
+        };
+
+        return jpaExecutor.execute(queryOperation);
+    }
+
+    @Override
+    public PushApplication findByPushApplicationID(final String pushApplicationID) {
+
+        final JpaOperation<PushApplication> queryOperation = new JpaOperation<PushApplication>() {
+            @Override
+            public PushApplication perform(final EntityManager entityManager) {
+
+                PushApplicationEntity entity = getSingleResultForQuery(entityManager.createQuery("select pa from " + PushApplicationEntity.class.getSimpleName() + " pa where pa.pushApplicationID = :pushApplicationID")
+                        .setParameter("pushApplicationID", pushApplicationID));
+
+                return JPATransformHelper.fromEntity(entity);
+            }
+        };
+
+        return jpaExecutor.execute(queryOperation);
+    }
+
+    @Override
+    public PushApplication find(final String id) {
+        final JpaOperation<PushApplicationEntity> findVariantOperation = new JpaOperation<PushApplicationEntity>() {
+            @Override
+            public PushApplicationEntity perform(final EntityManager entityManager) {
+                PushApplicationEntity entity = entityManager.find(PushApplicationEntity.class, id);
+                return entity;
+            }
+        };
+
+        PushApplicationEntity entity = jpaExecutor.execute(findVariantOperation);
         return JPATransformHelper.fromEntity(entity);
-    }
-
-    @Override
-    public PushApplication findByPushApplicationID(String pushApplicationID) {
-
-        PushApplicationEntity entity = getSingleResultForQuery(createQuery("select pa from " + PushApplicationEntity.class.getSimpleName() + " pa where pa.pushApplicationID = :pushApplicationID")
-                .setParameter("pushApplicationID", pushApplicationID));
-
-        return JPATransformHelper.fromEntity(entity);
-    }
-
-    @Override
-    public PushApplication find(String id) {
-        PushApplicationEntity entity = entityManager.find(PushApplicationEntity.class, id);
-        return  JPATransformHelper.fromEntity(entity);
     }
 
     private PushApplicationEntity getSingleResultForQuery(Query query) {

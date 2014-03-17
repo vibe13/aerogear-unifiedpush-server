@@ -16,48 +16,38 @@
  */
 package org.jboss.aerogear.unifiedpush.jpa.dao.impl;
 
-import javax.inject.Inject;
+import org.jboss.aerogear.unifiedpush.jpa.interceptor.JpaExecutor;
+import org.jboss.aerogear.unifiedpush.jpa.interceptor.JpaOperation;
+
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.Persistence;
 
 public abstract class JPABaseDao {
 
-    //@PersistenceContext
-    @Inject
-    protected EntityManager entityManager;
+    protected final JpaExecutor jpaExecutor = new JpaExecutor(Persistence.createEntityManagerFactory("unifiedpush-default"));
 
-    /**
-     * Hook to manually inject an EntityManager.
-     */
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    protected void persist(final Object entity) {
+
+        final JpaOperation<Void> saveOperation = new JpaOperation<Void>() {
+            @Override
+            public Void perform(final EntityManager entityManager) {
+                entityManager.persist(entity);
+                return null;
+            }
+        };
+
+        jpaExecutor.execute(saveOperation);
     }
 
+    protected void merge(final Object entity) {
+        final JpaOperation<Void> updateOperation = new JpaOperation<Void>() {
+            @Override
+            public Void perform(final EntityManager entityManager) {
+                entityManager.merge(entity);
+                return null;
+            }
+        };
 
-    protected Query createQuery(String jpql) {
-        return entityManager.createQuery(jpql);
+        jpaExecutor.execute(updateOperation);
     }
-
-    protected void persist(Object entity) {
-        entityManager.joinTransaction();
-        entityManager.persist(entity);
-    }
-
-    protected void merge(Object entity) {
-        entityManager.joinTransaction();
-        entityManager.merge(entity);
-
-        entityManager.flush();
-    }
-
-    protected void remove(Object entity) {
-        if (entity != null) {
-
-            entityManager.joinTransaction();
-            entityManager.remove(entity);
-        }
-    }
-
-
 }

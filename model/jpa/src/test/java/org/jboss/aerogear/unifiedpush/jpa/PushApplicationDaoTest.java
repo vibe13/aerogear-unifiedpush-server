@@ -22,46 +22,15 @@ import org.jboss.aerogear.unifiedpush.api.PushApplication;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAInstallationDao;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAPushApplicationDao;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAVariantDao;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.atIndex;
 
 public class PushApplicationDaoTest {
 
-    private EntityManager entityManager;
-    private JPAPushApplicationDao pushApplicationDao;
-    private JPAVariantDao variantDao;
-    private JPAInstallationDao installationDao;
-
-    @Before
-    public void setUp() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("UnifiedPush");
-        entityManager = emf.createEntityManager();
-
-        // start the shindig
-        entityManager.getTransaction().begin();
-
-        pushApplicationDao = new JPAPushApplicationDao();
-        pushApplicationDao.setEntityManager(entityManager);
-        variantDao = new JPAVariantDao();
-        variantDao.setEntityManager(entityManager);
-        installationDao = new JPAInstallationDao();
-        installationDao.setEntityManager(entityManager);
-    }
-
-    @After
-    public void tearDown() {
-        entityManager.getTransaction().commit();
-
-        entityManager.close();
-    }
+    private final JPAPushApplicationDao pushApplicationDao = new JPAPushApplicationDao();
+    private final JPAVariantDao variantDao = new JPAVariantDao();
+    private final JPAInstallationDao installationDao = new JPAInstallationDao();
 
 
     @Test
@@ -186,11 +155,6 @@ public class PushApplicationDaoTest {
         final String id = pushApplication1.getId();
         pushApplicationDao.create(pushApplication1);
 
-        // flush to be sure that it's in the database
-        entityManager.flush();
-        // clear the cache otherwise finding the entity will not perform a select but get the entity from cache
-        entityManager.clear();
-
 
         PushApplication pa = pushApplicationDao.find(id);
 
@@ -198,9 +162,6 @@ public class PushApplicationDaoTest {
 
         pushApplication1.setName("Cool Push App 1");
         pushApplicationDao.update(pushApplication1);
-
-        entityManager.flush();
-        entityManager.clear();
 
         pa = pushApplicationDao.find(id);
 
@@ -214,10 +175,6 @@ public class PushApplicationDaoTest {
         final String id = pushApplication1.getId();
         pushApplicationDao.create(pushApplication1);
 
-        // flush to be sure that it's in the database
-        entityManager.flush();
-        // clear the cache otherwise finding the entity will not perform a select but get the entity from cache
-        entityManager.clear();
 
         PushApplication pa = pushApplicationDao.find(id);
         assertThat(pa.getId()).isEqualTo(id);
@@ -240,10 +197,6 @@ public class PushApplicationDaoTest {
         assertThat(installationDao.find(androidInstallation1.getId())).isNotNull();
 
         pushApplicationDao.delete(pa);
-        // flush to be sure that it's in the database
-        entityManager.flush();
-        // clear the cache otherwise finding the entity will not perform a select but get the entity from cache
-        entityManager.clear();
 
         // Installation should be gone:
         assertThat(installationDao.find(androidInstallation1.getId())).isNull();
