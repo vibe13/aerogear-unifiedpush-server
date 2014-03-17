@@ -25,8 +25,6 @@ import org.jboss.aerogear.unifiedpush.service.GenericVariantService;
 import org.jboss.aerogear.unifiedpush.service.impl.ClientInstallationServiceImpl;
 import org.jboss.aerogear.unifiedpush.service.impl.GenericVariantServiceImpl;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -42,9 +40,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import java.util.logging.Logger;
 
-@Stateless
 @Path("/registry/device")
-@TransactionAttribute
 public class InstallationRegistrationEndpoint {
 
     private final Logger logger = Logger.getLogger(InstallationRegistrationEndpoint.class.getName());

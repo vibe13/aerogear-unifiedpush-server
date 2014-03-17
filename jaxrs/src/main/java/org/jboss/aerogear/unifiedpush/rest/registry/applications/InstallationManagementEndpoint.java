@@ -25,8 +25,6 @@ import org.jboss.aerogear.security.authz.Secure;
 import org.jboss.aerogear.unifiedpush.service.impl.ClientInstallationServiceImpl;
 import org.jboss.aerogear.unifiedpush.service.impl.GenericVariantServiceImpl;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -39,8 +37,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Stateless
-@TransactionAttribute
 @Path("/applications/{variantID}/installations/")
 @Secure( { "developer", "admin" })
 public class InstallationManagementEndpoint {

@@ -20,8 +20,6 @@ import org.jboss.aerogear.security.authz.Secure;
 import org.jboss.aerogear.unifiedpush.api.AndroidVariant;
 import org.jboss.aerogear.unifiedpush.api.PushApplication;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -37,8 +35,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-@Stateless
-@TransactionAttribute
 @Path("/applications/{pushAppID}/android")
 @Secure( { "developer", "admin" })
 public class AndroidVariantEndpoint extends AbstractVariantEndpoint {

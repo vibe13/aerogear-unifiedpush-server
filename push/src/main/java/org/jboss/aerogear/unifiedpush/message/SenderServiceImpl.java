@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.ejb.Asynchronous;
-import javax.ejb.Stateless;
-
 import org.jboss.aerogear.unifiedpush.api.AndroidVariant;
 import org.jboss.aerogear.unifiedpush.api.ChromePackagedAppVariant;
 import org.jboss.aerogear.unifiedpush.api.PushApplication;
@@ -40,8 +37,6 @@ import org.jboss.aerogear.unifiedpush.service.GenericVariantService;
 import org.jboss.aerogear.unifiedpush.service.impl.ClientInstallationServiceImpl;
 import org.jboss.aerogear.unifiedpush.service.impl.GenericVariantServiceImpl;
 
-@Stateless
-@Asynchronous
 public class SenderServiceImpl implements SenderService {
 
     private final Logger logger = Logger.getLogger(SenderServiceImpl.class.getName());
@@ -53,7 +48,6 @@ public class SenderServiceImpl implements SenderService {
     private final GenericVariantService genericVariantService = new GenericVariantServiceImpl();
 
     @Override
-    @Asynchronous
     public void send(PushApplication pushApplication, UnifiedPushMessage message) {
         logger.info(String.format("Processing send request with '%s' payload", message));
 

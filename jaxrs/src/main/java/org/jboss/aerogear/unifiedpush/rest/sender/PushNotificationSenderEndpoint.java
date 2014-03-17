@@ -19,8 +19,6 @@ package org.jboss.aerogear.unifiedpush.rest.sender;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -38,9 +36,7 @@ import org.jboss.aerogear.unifiedpush.rest.util.HttpBasicHelper;
 import org.jboss.aerogear.unifiedpush.service.PushApplicationService;
 import org.jboss.aerogear.unifiedpush.service.impl.PushApplicationServiceImpl;
 
-@Stateless
 @Path("/sender")
-@TransactionAttribute
 public class PushNotificationSenderEndpoint {
 
     private final Logger logger = Logger.getLogger(PushNotificationSenderEndpoint.class.getName());

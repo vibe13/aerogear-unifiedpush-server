@@ -22,8 +22,6 @@ import org.jboss.aerogear.unifiedpush.dao.InstallationDao;
 import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAInstallationDao;
 import org.jboss.aerogear.unifiedpush.service.ClientInstallationService;
 
-import javax.ejb.Asynchronous;
-import javax.ejb.Stateless;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +29,6 @@ import java.util.Set;
  * (Default) implementation of the {@code ClientInstallationService} interface.
  * Delegates work to an injected DAO object.
  */
-@Stateless
 public class ClientInstallationServiceImpl implements ClientInstallationService {
 
     private InstallationDao dao = new JPAInstallationDao();
@@ -86,7 +83,6 @@ public class ClientInstallationServiceImpl implements ClientInstallationService 
     }
 
     @Override
-    @Asynchronous
     public void removeInstallationsForVariantByDeviceTokens(String variantID, Set<String> deviceTokens) {
         // collect inactive installations for the given variant:
         List<Installation> inactiveInstallations = dao.findInstallationsForVariantByDeviceTokens(variantID, deviceTokens);
