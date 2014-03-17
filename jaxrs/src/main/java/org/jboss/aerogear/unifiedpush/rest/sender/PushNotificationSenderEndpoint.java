@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -33,9 +32,11 @@ import javax.ws.rs.core.Response.Status;
 
 import org.jboss.aerogear.unifiedpush.api.PushApplication;
 import org.jboss.aerogear.unifiedpush.message.SenderService;
+import org.jboss.aerogear.unifiedpush.message.SenderServiceImpl;
 import org.jboss.aerogear.unifiedpush.message.UnifiedPushMessage;
 import org.jboss.aerogear.unifiedpush.rest.util.HttpBasicHelper;
 import org.jboss.aerogear.unifiedpush.service.PushApplicationService;
+import org.jboss.aerogear.unifiedpush.service.impl.PushApplicationServiceImpl;
 
 @Stateless
 @Path("/sender")
@@ -43,10 +44,8 @@ import org.jboss.aerogear.unifiedpush.service.PushApplicationService;
 public class PushNotificationSenderEndpoint {
 
     private final Logger logger = Logger.getLogger(PushNotificationSenderEndpoint.class.getName());
-    @Inject
-    private PushApplicationService pushApplicationService;
-    @Inject
-    private SenderService senderService;
+    private final PushApplicationService pushApplicationService = new PushApplicationServiceImpl();
+    private final SenderService senderService = new SenderServiceImpl();
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

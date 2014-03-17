@@ -21,6 +21,8 @@ import org.jboss.aerogear.unifiedpush.api.Variant;
 import org.jboss.aerogear.unifiedpush.rest.AbstractBaseEndpoint;
 import org.jboss.aerogear.unifiedpush.service.GenericVariantService;
 import org.jboss.aerogear.unifiedpush.service.PushApplicationService;
+import org.jboss.aerogear.unifiedpush.service.impl.GenericVariantServiceImpl;
+import org.jboss.aerogear.unifiedpush.service.impl.PushApplicationServiceImpl;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -41,11 +43,8 @@ import java.util.UUID;
  */
 public abstract class AbstractVariantEndpoint extends AbstractBaseEndpoint {
 
-    @Inject
-    protected PushApplicationService pushAppService;
-
-    @Inject
-    protected GenericVariantService variantService;
+    protected final PushApplicationService pushAppService = new PushApplicationServiceImpl();
+    protected final GenericVariantService variantService = new GenericVariantServiceImpl();
 
     @Inject
     @LoggedUser

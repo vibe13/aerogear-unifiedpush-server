@@ -22,10 +22,11 @@ import org.jboss.aerogear.unifiedpush.api.VariantType;
 import org.jboss.aerogear.unifiedpush.rest.util.HttpBasicHelper;
 import org.jboss.aerogear.unifiedpush.service.ClientInstallationService;
 import org.jboss.aerogear.unifiedpush.service.GenericVariantService;
+import org.jboss.aerogear.unifiedpush.service.impl.ClientInstallationServiceImpl;
+import org.jboss.aerogear.unifiedpush.service.impl.GenericVariantServiceImpl;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -47,10 +48,8 @@ import java.util.logging.Logger;
 public class InstallationRegistrationEndpoint {
 
     private final Logger logger = Logger.getLogger(InstallationRegistrationEndpoint.class.getName());
-    @Inject
-    private ClientInstallationService clientInstallationService;
-    @Inject
-    private GenericVariantService genericVariantService;
+    private final ClientInstallationService clientInstallationService = new ClientInstallationServiceImpl();
+    private final GenericVariantService genericVariantService = new GenericVariantServiceImpl();
 
     @OPTIONS
     @Path("{token}")

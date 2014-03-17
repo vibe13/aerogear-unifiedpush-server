@@ -21,6 +21,7 @@ import org.jboss.aerogear.unifiedpush.rest.AbstractBaseEndpoint;
 import org.jboss.aerogear.unifiedpush.service.PushApplicationService;
 import org.jboss.aerogear.security.auth.LoggedUser;
 import org.jboss.aerogear.security.authz.Secure;
+import org.jboss.aerogear.unifiedpush.service.impl.PushApplicationServiceImpl;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -49,8 +50,7 @@ import java.util.UUID;
 @Secure( { "developer", "admin" })
 public class PushApplicationEndpoint extends AbstractBaseEndpoint {
 
-    @Inject
-    private PushApplicationService pushAppService;
+    private final PushApplicationService pushAppService = new PushApplicationServiceImpl();
 
     @Inject
     @LoggedUser

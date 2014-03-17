@@ -22,6 +22,8 @@ import org.jboss.aerogear.unifiedpush.api.Variant;
 import org.jboss.aerogear.unifiedpush.service.ClientInstallationService;
 import org.jboss.aerogear.unifiedpush.service.GenericVariantService;
 import org.jboss.aerogear.security.authz.Secure;
+import org.jboss.aerogear.unifiedpush.service.impl.ClientInstallationServiceImpl;
+import org.jboss.aerogear.unifiedpush.service.impl.GenericVariantServiceImpl;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -43,11 +45,8 @@ import javax.ws.rs.core.Response;
 @Secure( { "developer", "admin" })
 public class InstallationManagementEndpoint {
 
-    @Inject
-    private GenericVariantService genericVariantService;
-
-    @Inject
-    private ClientInstallationService clientInstallationService;
+    private final GenericVariantService genericVariantService = new GenericVariantServiceImpl();
+    private final ClientInstallationService clientInstallationService = new ClientInstallationServiceImpl();
 
     @Inject
     @LoggedUser
