@@ -28,11 +28,6 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <!-- Import the EJB API, we use provided scope as the API is included
             in JBoss -->
         <dependency>
@@ -48,13 +43,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-core-hibernate</artifactId>
-            <version>4.6.0</version>
-            <type>pom</type>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

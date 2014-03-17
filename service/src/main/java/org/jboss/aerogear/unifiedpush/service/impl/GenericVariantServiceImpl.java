@@ -16,17 +16,15 @@
  */
 package org.jboss.aerogear.unifiedpush.service.impl;
 
-import javax.inject.Inject;
-
 import org.jboss.aerogear.unifiedpush.api.Installation;
 import org.jboss.aerogear.unifiedpush.api.Variant;
 import org.jboss.aerogear.unifiedpush.dao.VariantDao;
+import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAVariantDao;
 import org.jboss.aerogear.unifiedpush.service.GenericVariantService;
 
 public class GenericVariantServiceImpl implements GenericVariantService {
 
-    @Inject
-    private VariantDao variantDao;
+    private VariantDao variantDao = new JPAVariantDao();
 
     @Override
     public void addVariant(Variant variant) {

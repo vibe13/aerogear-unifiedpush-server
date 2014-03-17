@@ -19,11 +19,11 @@ package org.jboss.aerogear.unifiedpush.service.impl;
 import org.jboss.aerogear.unifiedpush.api.Installation;
 import org.jboss.aerogear.unifiedpush.api.VariantType;
 import org.jboss.aerogear.unifiedpush.dao.InstallationDao;
+import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAInstallationDao;
 import org.jboss.aerogear.unifiedpush.service.ClientInstallationService;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 
@@ -34,8 +34,7 @@ import java.util.Set;
 @Stateless
 public class ClientInstallationServiceImpl implements ClientInstallationService {
 
-    @Inject
-    private InstallationDao dao;
+    private InstallationDao dao = new JPAInstallationDao();
 
     public void addInstallation(VariantType type, Installation installation) {
         installation.setVariantType(type);

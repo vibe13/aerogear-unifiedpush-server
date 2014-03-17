@@ -18,20 +18,18 @@ package org.jboss.aerogear.unifiedpush.service.impl;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.jboss.aerogear.unifiedpush.api.AndroidVariant;
 import org.jboss.aerogear.unifiedpush.api.ChromePackagedAppVariant;
 import org.jboss.aerogear.unifiedpush.api.PushApplication;
 import org.jboss.aerogear.unifiedpush.api.SimplePushVariant;
 import org.jboss.aerogear.unifiedpush.api.iOSVariant;
 import org.jboss.aerogear.unifiedpush.dao.PushApplicationDao;
+import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAPushApplicationDao;
 import org.jboss.aerogear.unifiedpush.service.PushApplicationService;
 
 public class PushApplicationServiceImpl implements PushApplicationService {
 
-    @Inject
-    private PushApplicationDao pushApplicationDao;
+    private PushApplicationDao pushApplicationDao = new JPAPushApplicationDao();
 
     @Override
     public void addPushApplication(PushApplication pushApp) {

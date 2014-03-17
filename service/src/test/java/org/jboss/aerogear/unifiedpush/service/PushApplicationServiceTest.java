@@ -16,49 +16,21 @@
  */
 package org.jboss.aerogear.unifiedpush.service;
 
-import org.apache.openejb.jee.Beans;
-import org.apache.openejb.junit.ApplicationComposer;
-import org.apache.openejb.testing.Module;
 import org.jboss.aerogear.unifiedpush.api.PushApplication;
-import org.jboss.aerogear.unifiedpush.jpa.dao.impl.JPAPushApplicationDao;
 import org.jboss.aerogear.unifiedpush.service.impl.PushApplicationServiceImpl;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
-import javax.annotation.PreDestroy;
-import javax.ejb.Stateful;
-import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.persistence.*;
-import java.io.Serializable;
 import java.util.UUID;
 
-@RunWith(ApplicationComposer.class)
 public class PushApplicationServiceTest {
 
-    @Inject
-    private PushApplicationService pushApplicationService;
-
-    @Module
-    public Beans getBeans() {
-        final Beans beans = new Beans();
-        beans.addManagedClass(PushApplicationServiceImpl.class);
-        beans.addManagedClass(JPAPushApplicationDao.class);
-
-        return beans;
-    }
-
-    @Module
-    public Class<?>[] app() throws Exception {
-        return new Class<?>[] { EntityManagerProducer.class};
-    }
+    private final PushApplicationService pushApplicationService = new PushApplicationServiceImpl();
 
     @Test
     public void addPushApplication() {
         PushApplication pa = new PushApplication();
-        pa.setName("EJB Container");
+        pa.setName("PushApplication");
         final String uuid = UUID.randomUUID().toString();
         pa.setPushApplicationID(uuid);
 
@@ -74,7 +46,7 @@ public class PushApplicationServiceTest {
     @Test
     public void updatePushApplication() {
         PushApplication pa = new PushApplication();
-        pa.setName("EJB Container");
+        pa.setName("PushApplication");
         final String uuid = UUID.randomUUID().toString();
         pa.setPushApplicationID(uuid);
 
@@ -92,7 +64,7 @@ public class PushApplicationServiceTest {
     @Test
     public void findByPushApplicationID() {
         PushApplication pa = new PushApplication();
-        pa.setName("EJB Container");
+        pa.setName("PushApplication");
         final String uuid = UUID.randomUUID().toString();
         pa.setPushApplicationID(uuid);
 
@@ -115,7 +87,7 @@ public class PushApplicationServiceTest {
         assertTrue(pushApplicationService.findAllPushApplicationsForDeveloper("admin").isEmpty());
 
         PushApplication pa = new PushApplication();
-        pa.setName("EJB Container");
+        pa.setName("PushApplication");
         final String uuid = UUID.randomUUID().toString();
         pa.setPushApplicationID(uuid);
         pa.setDeveloper("admin");
@@ -129,7 +101,7 @@ public class PushApplicationServiceTest {
     @Test
     public void removePushApplication() {
         PushApplication pa = new PushApplication();
-        pa.setName("EJB Container");
+        pa.setName("PushApplication");
         final String uuid = UUID.randomUUID().toString();
         pa.setPushApplicationID(uuid);
         pa.setDeveloper("admin");
@@ -148,7 +120,7 @@ public class PushApplicationServiceTest {
     @Test
     public void findByPushApplicationIDForDeveloper() {
         PushApplication pa = new PushApplication();
-        pa.setName("EJB Container");
+        pa.setName("PushApplication");
         final String uuid = UUID.randomUUID().toString();
         pa.setPushApplicationID(uuid);
         pa.setDeveloper("admin");
@@ -161,33 +133,5 @@ public class PushApplicationServiceTest {
 
         assertNull(pushApplicationService.findByPushApplicationIDForDeveloper(uuid, "admin2"));
         assertNull(pushApplicationService.findByPushApplicationIDForDeveloper("123-3421", "admin"));
-    }
-
-    // test-ware: EM producer:
-
-    @SessionScoped
-    @Stateful
-    public static class EntityManagerProducer implements Serializable {
-
-        {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("UnifiedPush");
-            entityManager = emf.createEntityManager();
-        }
-
-        private static EntityManager entityManager;
-
-        @Produces
-        public EntityManager produceEm() {
-            entityManager.getTransaction().begin();
-            return entityManager;
-        }
-
-        @PreDestroy
-        public void closeEntityManager() {
-            if (entityManager.isOpen()) {
-                entityManager.getTransaction().commit();
-                entityManager.close();
-            }
-        }
     }
 }
