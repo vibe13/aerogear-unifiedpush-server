@@ -129,9 +129,9 @@ public class SenderServiceImpl implements SenderService {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(final String reason) {
                         logger.log(Level.WARNING, "Error on APNs delivery");
-                        updateStatusOfPushMessageInformation(pushMessageInformation, iOSVariant.getVariantID(), tokenPerVariant.size(), Boolean.FALSE) ;
+                        updateStatusOfPushMessageInformation(pushMessageInformation, iOSVariant.getVariantID(), tokenPerVariant.size(), Boolean.FALSE, reason) ;
                     }
                 });
 
@@ -148,9 +148,9 @@ public class SenderServiceImpl implements SenderService {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(final String reason) {
                         logger.log(Level.WARNING, "Error on GCM-Android delivery");
-                        updateStatusOfPushMessageInformation(pushMessageInformation, androidVariant.getVariantID(), androidTokenPerVariant.size(), Boolean.FALSE) ;
+                        updateStatusOfPushMessageInformation(pushMessageInformation, androidVariant.getVariantID(), androidTokenPerVariant.size(), Boolean.FALSE, reason) ;
                     }
                 });
             }
@@ -167,9 +167,9 @@ public class SenderServiceImpl implements SenderService {
                     }
 
                     @Override
-                    public void onError() {
+                    public void onError(final String reason) {
                         logger.log(Level.WARNING, "Error on GCM-Chrome  delivery");
-                        updateStatusOfPushMessageInformation(pushMessageInformation, chromePackagedAppVariant.getVariantID(), chromePackagedAppTokenPerVariant.size(), Boolean.FALSE) ;
+                        updateStatusOfPushMessageInformation(pushMessageInformation, chromePackagedAppVariant.getVariantID(), chromePackagedAppTokenPerVariant.size(), Boolean.FALSE, reason) ;
                     }
                 });
             }
@@ -186,22 +186,27 @@ public class SenderServiceImpl implements SenderService {
                 }
 
                 @Override
-                public void onError() {
+                public void onError(final String reason) {
                     logger.log(Level.WARNING, "Error on SimplePush delivery");
-                    updateStatusOfPushMessageInformation(pushMessageInformation, simplePushVariant.getVariantID(), pushEndpointURLsPerCategory.size(), Boolean.FALSE) ;
+                    updateStatusOfPushMessageInformation(pushMessageInformation, simplePushVariant.getVariantID(), pushEndpointURLsPerCategory.size(), Boolean.FALSE, reason) ;
                 }
             });
         }
     }
 
     /**
-     * Helper to update the given {@link PushMessageInformation} with a {@link VariantMetricInformation} object
+     * Helpers to update the given {@link PushMessageInformation} with a {@link VariantMetricInformation} object
      */
-    private void updateStatusOfPushMessageInformation(PushMessageInformation pushMessageInformation, String variantID, int receives, Boolean deliveryStatus) {
+    private void updateStatusOfPushMessageInformation(final PushMessageInformation pushMessageInformation,final String variantID, final int receives, final Boolean deliveryStatus) {
+        this.updateStatusOfPushMessageInformation(pushMessageInformation, variantID, receives, deliveryStatus, null);
+    }
+
+    private void updateStatusOfPushMessageInformation(final PushMessageInformation pushMessageInformation,final String variantID, final int receives, final Boolean deliveryStatus, final String reason) {
         final VariantMetricInformation variantMetricInformation = new VariantMetricInformation();
         variantMetricInformation.setVariantID(variantID);
         variantMetricInformation.setReceivers(receives);
         variantMetricInformation.setDeliveryStatus(deliveryStatus);
+        variantMetricInformation.setReason(reason);
         pushMessageInformation.getVariantInformations().add(variantMetricInformation);
 
         // store it!
